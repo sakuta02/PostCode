@@ -73,4 +73,4 @@ PYTHONPATH=src python -m train --set train_dir=data/train
 1. https://github.com/sakuta02
 2. https://github.com/aradishev
 3. https://github.com/artemkafrog
-4. ...
+4. https://github.com/snezhana-nitsenko
