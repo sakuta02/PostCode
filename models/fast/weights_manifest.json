@@ -1,0 +1,22 @@
+{
+  "files": [
+    {
+      "file": "fast_model.pt",
+      "role": "other",
+      "bytes": 349573097,
+      "sha256": "258cdb84e81b9d053cda6ce05c38f9d56f0a9703077d5471f18728eff48e6cd0",
+      "epoch": 17,
+      "full_data": true,
+      "n_train": 607,
+      "backbone": "dinov2_vitb14",
+      "img_size": 392,
+      "masks_from": "instances_default_with_frame.json"
+    }
+  ],
+  "counts": {
+    "fast": 0,
+    "ensemble": 0,
+    "other": 1
+  },
+  "total_gb": 0.35
+}

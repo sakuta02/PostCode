@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+  <xs:simpleType name="ShipmentIdType">
+    <xs:annotation><xs:documentation>
+      Номер перевозки: латиница, цифры, точка, дефис, подчёркивание; 1–64 символа.
+    </xs:documentation></xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z0-9._\-]{1,64}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ModeType">
+    <xs:annotation><xs:documentation>
+      fast — одна модель, быстрый ответ; accurate — ансамбль моделей, выше точность.
+    </xs:documentation></xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="fast"/>
+      <xs:enumeration value="accurate"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PercentType">
+    <xs:restriction base="xs:decimal">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="100"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ConfidenceType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="high"/>
+      <xs:enumeration value="medium"/>
+      <xs:enumeration value="low"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="Base64ImageType">
+    <xs:simpleContent>
+      <xs:extension base="xs:base64Binary">
+        <xs:attribute name="encoding" type="xs:string" fixed="base64"/>
+        <xs:attribute name="filename" type="xs:string"/>
+        <xs:attribute name="format" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="ShipmentSummaryType">
+    <xs:attribute name="estimates" type="xs:positiveInteger" use="required"/>
+    <xs:attribute name="aggregateLoadPct" type="PercentType" use="required"/>
+    <xs:attribute name="method" type="xs:string" use="required"/>
+    <xs:attribute name="photos" type="xs:positiveInteger">
+      <xs:annotation><xs:documentation>
+        Число различных фото, по которым считается медиана (повторные оценки
+        одного фото учитываются один раз, берётся последняя).
+      </xs:documentation></xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="PhotoQualityType">
+    <xs:annotation><xs:documentation>
+      Качество фото без нейросети. Оценку не блокирует: status="warning" значит,
+      что прогнозу стоит доверять меньше и фото лучше переснять.
+      brightness — средняя яркость, % от белого; darkShare / brightShare — доля
+      почти чёрных / почти белых пикселей, %; sharpness — дисперсия лапласиана
+      (меньше 15 — смазано).
+    </xs:documentation></xs:annotation>
+    <xs:sequence>
+      <xs:element name="Issue" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute name="code" use="required">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="LOW_RESOLUTION"/>
+                    <xs:enumeration value="TOO_DARK"/>
+                    <xs:enumeration value="OVEREXPOSED"/>
+                    <xs:enumeration value="BLURRY"/>
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:attribute>
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="status" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="ok"/>
+          <xs:enumeration value="warning"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="width" type="xs:positiveInteger" use="required"/>
+    <xs:attribute name="height" type="xs:positiveInteger" use="required"/>
+    <xs:attribute name="brightness" type="xs:decimal" use="required"/>
+    <xs:attribute name="darkShare" type="xs:decimal" use="required"/>
+    <xs:attribute name="brightShare" type="xs:decimal" use="required"/>
+    <xs:attribute name="sharpness" type="xs:decimal" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="AccuracyType">
+    <xs:attribute name="confirmed" type="xs:nonNegativeInteger" use="required"/>
+    <xs:attribute name="mae" type="xs:decimal"/>
+    <xs:attribute name="within10pp" type="xs:decimal"/>
+    <xs:attribute name="bias" type="xs:decimal"/>
+  </xs:complexType>
+
+  <xs:complexType name="EstimateType">
+    <xs:sequence>
+      <xs:element name="EstimateId" type="xs:positiveInteger"/>
+      <xs:element name="ShipmentId" type="ShipmentIdType"/>
+      <xs:element name="LoadPct" type="PercentType"/>
+      <xs:element name="Interval">
+        <xs:complexType>
+          <xs:attribute name="low" type="PercentType" use="required"/>
+          <xs:attribute name="high" type="PercentType" use="required"/>
+          <xs:attribute name="level" type="xs:decimal" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Confidence" type="ConfidenceType"/>
+      <xs:element name="OccupiedRatioByMask" type="PercentType" minOccurs="0"/>
+      <xs:element name="Model">
+        <xs:complexType>
+          <xs:attribute name="version" type="xs:string" use="required"/>
+          <xs:attribute name="mode" type="ModeType" use="required"/>
+          <xs:attribute name="models" type="xs:positiveInteger" use="required"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="ProcessingMs" type="xs:nonNegativeInteger"/>
+      <xs:element name="CreatedAt" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="EstimateRequest">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="ShipmentId" type="ShipmentIdType"/>
+        <xs:element name="Image" type="Base64ImageType"/>
+        <xs:element name="Mode" type="ModeType" minOccurs="0"/>
+        <xs:element name="ReturnMask" type="xs:boolean" minOccurs="0"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="FeedbackRequest">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="ShipmentId" type="ShipmentIdType"/>
+        <xs:element name="ConfirmedLoadPct" type="PercentType"/>
+        <xs:element name="EstimateId" type="xs:positiveInteger" minOccurs="0"/>
+        <xs:element name="Comment" minOccurs="0">
+          <xs:simpleType>
+            <xs:restriction base="xs:string"><xs:maxLength value="1000"/></xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="RetrainRequest">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="DryRun" type="xs:boolean" minOccurs="0"/>
+        <xs:element name="Activate" type="xs:boolean" minOccurs="0"/>
+        <xs:element name="AllowCpu" type="xs:boolean" minOccurs="0"/>
+        <xs:element name="MinFeedback" type="xs:nonNegativeInteger" minOccurs="0"/>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="EstimateResponse">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="EstimateType">
+          <xs:sequence>
+            <xs:element name="Shipment" type="ShipmentSummaryType"/>
+            <xs:element name="PhotoQuality" type="PhotoQualityType" minOccurs="0"/>
+            <xs:element name="Duplicate" type="xs:boolean" minOccurs="0">
+              <xs:annotation><xs:documentation>
+                true — это фото уже оценивалось в этой перевозке тем же режимом и
+                версией модели; возвращена сохранённая оценка, новая не создана.
+              </xs:documentation></xs:annotation>
+            </xs:element>
+            <xs:element name="Mask" type="Base64ImageType" minOccurs="0"/>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ShipmentResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="ShipmentId" type="ShipmentIdType"/>
+        <xs:element name="Aggregate" type="ShipmentSummaryType"/>
+        <xs:element name="Latest" type="EstimateType"/>
+        <xs:element name="History">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Estimate" type="EstimateType" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Feedback" minOccurs="0">
+          <xs:complexType>
+            <xs:attribute name="confirmedLoadPct" type="PercentType" use="required"/>
+            <xs:attribute name="createdAt" type="xs:dateTime" use="required"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="FeedbackResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="FeedbackId" type="xs:positiveInteger"/>
+        <xs:element name="ShipmentId" type="ShipmentIdType"/>
+        <xs:element name="EstimateId" type="xs:positiveInteger"/>
+        <xs:element name="PredictedLoadPct" type="PercentType"/>
+        <xs:element name="ConfirmedLoadPct" type="PercentType"/>
+        <xs:element name="PendingForRetrain" type="xs:nonNegativeInteger"/>
+        <xs:element name="CreatedAt" type="xs:dateTime"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="JobResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="JobId" type="xs:positiveInteger"/>
+        <xs:element name="Kind" type="xs:string"/>
+        <xs:element name="Status">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="queued"/>
+              <xs:enumeration value="running"/>
+              <xs:enumeration value="done"/>
+              <xs:enumeration value="failed"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="CreatedAt" type="xs:dateTime"/>
+        <xs:element name="FinishedAt" type="xs:dateTime" minOccurs="0"/>
+        <xs:element name="Result" type="xs:string" minOccurs="0"/>
+        <xs:element name="Log" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="ModelsResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Model" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:attribute name="version" type="xs:string" use="required"/>
+            <xs:attribute name="kind" type="xs:string" use="required"/>
+            <xs:attribute name="active" type="xs:boolean" use="required"/>
+            <xs:attribute name="createdAt" type="xs:dateTime" use="required"/>
+            <xs:attribute name="meta" type="xs:string"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="MetricsResponse">
+    <xs:annotation><xs:documentation>
+      Фактическая точность по подтверждённым оценкам (POST /feedback): mae —
+      средняя абсолютная ошибка, п.п.; within10pp — доля ошибок не больше
+      10 п.п., %; bias — среднее (прогноз − подтверждение), п.п. ByModel — то же
+      отдельно по версии модели и режиму.
+    </xs:documentation></xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Overall" type="AccuracyType"/>
+        <xs:element name="ByModel" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:complexContent>
+              <xs:extension base="AccuracyType">
+                <xs:attribute name="version" type="xs:string" use="required"/>
+                <xs:attribute name="mode" type="ModeType" use="required"/>
+              </xs:extension>
+            </xs:complexContent>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="HealthResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Status">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="ok"/>
+              <xs:enumeration value="degraded"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+        <xs:element name="Device" type="xs:string"/>
+        <xs:element name="Mode" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:attribute name="name" type="ModeType" use="required"/>
+            <xs:attribute name="available" type="xs:boolean" use="required"/>
+            <xs:attribute name="models" type="xs:nonNegativeInteger" use="required"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ActiveModel" type="xs:string"/>
+        <xs:element name="Version" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="Error">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Code" type="xs:string"/>
+        <xs:element name="Message" type="xs:string"/>
+        <xs:element name="Details" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

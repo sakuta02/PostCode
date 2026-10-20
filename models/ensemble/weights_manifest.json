@@ -1,0 +1,130 @@
+{
+  "files": [
+    {
+      "file": "mt200_fold0.pt",
+      "role": "ensemble",
+      "bytes": 349572245,
+      "sha256": "5c5803f597c7214b4cba0de86871bdce48ad4c4586974db3bb6b6f8be8af917a",
+      "fold": 0,
+      "val_mae": 5.751,
+      "full_data": false,
+      "backbone": "dinov2_vitb14",
+      "img_size": 392,
+      "masks_from": "instances_default_with_frame.json"
+    },
+    {
+      "file": "mt200_fold1.pt",
+      "role": "ensemble",
+      "bytes": 349572245,
+      "sha256": "e6df81a6605ad2c3c58792c1cc99d2b24416bc9eb0d3a7287e701e5ec939a082",
+      "fold": 1,
+      "val_mae": 7.398,
+      "full_data": false,
+      "backbone": "dinov2_vitb14",
+      "img_size": 392,
+      "masks_from": "instances_default_with_frame.json"
+    },
+    {
+      "file": "mt200_fold2.pt",
+      "role": "ensemble",
+      "bytes": 349572245,
+      "sha256": "39458e7fb8e73e504c99cef71a9f976236445e6a353d93d04046ba29a6cbb2e8",
+      "fold": 2,
+      "val_mae": 6.716,
+      "full_data": false,
+      "backbone": "dinov2_vitb14",
+      "img_size": 392,
+      "masks_from": "instances_default_with_frame.json"
+    },
+    {
+      "file": "mt200_fold3.pt",
+      "role": "ensemble",
+      "bytes": 349572245,
+      "sha256": "90d5b7edf847b9a508b7c48e1fe8d9311e401e9d9d12614872774919adb11a73",
+      "fold": 3,
+      "val_mae": 4.654,
+      "full_data": false,
+      "backbone": "dinov2_vitb14",
+      "img_size": 392,
+      "masks_from": "instances_default_with_frame.json"
+    },
+    {
+      "file": "mt200_fold4.pt",
+      "role": "ensemble",
+      "bytes": 349572245,
+      "sha256": "14d6cc1fef1f83533f47d12f44da6851ac5a371a3849ed93a3c7812e3361a15b",
+      "fold": 4,
+      "val_mae": 5.921,
+      "full_data": false,
+      "backbone": "dinov2_vitb14",
+      "img_size": 392,
+      "masks_from": "instances_default_with_frame.json"
+    },
+    {
+      "file": "mt_fold0.pt",
+      "role": "ensemble",
+      "bytes": 349571590,
+      "sha256": "327218155df9f0972e04b104be61af1cc31c1995830f0bc3be18176a8f93405e",
+      "fold": 0,
+      "val_mae": 5.591,
+      "full_data": false,
+      "backbone": "dinov2_vitb14",
+      "img_size": 392,
+      "masks_from": "instances_default.json"
+    },
+    {
+      "file": "mt_fold1.pt",
+      "role": "ensemble",
+      "bytes": 349571590,
+      "sha256": "06608ed0bb2aef9640ca318c610f7963d3fb788f624974daa34830396943ffa6",
+      "fold": 1,
+      "val_mae": 7.268,
+      "full_data": false,
+      "backbone": "dinov2_vitb14",
+      "img_size": 392,
+      "masks_from": "instances_default.json"
+    },
+    {
+      "file": "mt_fold2.pt",
+      "role": "ensemble",
+      "bytes": 349571590,
+      "sha256": "e27d23fac623f17a35a5f8369f4df6290c63c68f7a6d755ef4b478fbcc8f61ab",
+      "fold": 2,
+      "val_mae": 6.896,
+      "full_data": false,
+      "backbone": "dinov2_vitb14",
+      "img_size": 392,
+      "masks_from": "instances_default.json"
+    },
+    {
+      "file": "mt_fold3.pt",
+      "role": "ensemble",
+      "bytes": 349571590,
+      "sha256": "7ff6f8825c94d8c44a87676fab4b86bace5591a8c0070137ad0e358dcc9ab4ba",
+      "fold": 3,
+      "val_mae": 4.799,
+      "full_data": false,
+      "backbone": "dinov2_vitb14",
+      "img_size": 392,
+      "masks_from": "instances_default.json"
+    },
+    {
+      "file": "mt_fold4.pt",
+      "role": "ensemble",
+      "bytes": 349571590,
+      "sha256": "d10669c62e3e352c21302ef153dc41db3a1fa62de0654335d089dba5297f215d",
+      "fold": 4,
+      "val_mae": 5.675,
+      "full_data": false,
+      "backbone": "dinov2_vitb14",
+      "img_size": 392,
+      "masks_from": "instances_default.json"
+    }
+  ],
+  "counts": {
+    "fast": 0,
+    "ensemble": 10,
+    "other": 0
+  },
+  "total_gb": 3.5
+}

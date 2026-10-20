@@ -1,0 +1,15 @@
+services:
+  loadest:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/models:ro
+      - ./data:/data:ro
+      - loadest-data:/var/loadest
+    environment:
+      LOADEST_API_KEY: ${LOADEST_API_KEY:-}
+    restart: unless-stopped
+
+volumes:
+  loadest-data:
